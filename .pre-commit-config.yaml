@@ -1,0 +1,19 @@
+exclude: 'docs|node_modules|migrations|.git|.tox'
+default_stages: [pre-commit, pre-push]
+fail_fast: false
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/psf/black
+    rev: 22.10.0
+    hooks:
+      -   id: black
+- repo: https://github.com/PyCQA/flake8
+  rev: 3.9.2
+  hooks:
+    - id: flake8
+      args: ['--config=setup.cfg', '--ignore=F405,E501']
