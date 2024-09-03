@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "common",
     # 3rd-party apps the project depends on
     "rest_framework",
-    "rest_framework.authtoken",  # noqa
+    "rest_framework.authtoken",
     "rest_framework_simplejwt",
     "drf_yasg",
 ]
@@ -112,7 +112,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
-    # THROTTLE
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -161,11 +160,20 @@ SIMPLE_JWT = {
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
-    "social_core.backends.google.GoogleOAuth2",
-    "social_core.backends.facebook.FacebookOAuth2",
+    # "social_core.backends.google.GoogleOAuth2",
+    # "social_core.backends.facebook.FacebookOAuth2",
     "django.contrib.auth.backends.ModelBackend",
     # # `allauth` specific authentication methods, such as login by e-mail
-    "allauth.account.auth_backends.AuthenticationBackend",
+    # "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
 ]
 
 

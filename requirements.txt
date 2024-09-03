@@ -1,4 +1,7 @@
+argon2-cffi==21.3.0
+argon2-cffi-bindings==21.2.0
 asgiref==3.8.1
+cffi==1.17.0
 cfgv==3.4.0
 distlib==0.3.8
 Django==5.1.1
@@ -16,6 +19,7 @@ packaging==24.1
 platformdirs==4.2.2
 pre-commit==3.8.0
 psycopg2-binary==2.9.9
+pycparser==2.22
 PyJWT==2.9.0
 python-dotenv==1.0.1
 pytz==2024.1
