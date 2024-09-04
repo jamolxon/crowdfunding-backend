@@ -25,6 +25,7 @@ from rest_framework import permissions
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include("common.urls")),
+    path("api/v1/auth/", include("common.auth.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

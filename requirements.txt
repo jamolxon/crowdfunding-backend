@@ -16,6 +16,7 @@ inflection==0.5.1
 Markdown==3.7
 nodeenv==1.9.1
 packaging==24.1
+pillow==10.4.0
 platformdirs==4.2.2
 pre-commit==3.8.0
 psycopg2-binary==2.9.9
@@ -24,6 +25,7 @@ PyJWT==2.9.0
 python-dotenv==1.0.1
 pytz==2024.1
 PyYAML==6.0.2
+six==1.16.0
 sqlparse==0.5.1
 uritemplate==4.1.1
 virtualenv==20.26.3

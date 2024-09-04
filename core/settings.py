@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "ai",
     "core",
     "common",
     # 3rd-party apps the project depends on
@@ -129,7 +130,6 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 20,
-    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",  # noqa
     "DATE_FORMAT": "%Y-%m-%d",
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M",
 }
@@ -181,6 +181,14 @@ SWAGGER_SETTINGS = {
     "JSON_EDITOR": True,
 }
 
+
+AUTH_USER_MODEL = "common.user"
+
+
+REGISTRATION_EXPIRATION_CODE_MINUTES = 1
+VERIFICATION_EXPIRATION_CODE_SECONDS = 86400
+REGISTRATION_SEND_CODE_INTERVAL = 120
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -214,3 +222,40 @@ except ImportError:
     print(
         "Please create local_settings.py file and configure it using local_settings.example.py file in the core directory."
     )
+
+
+# Email will be sent to user emails. This is used in production
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.yandex.ru"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "noreply@lenta.uz"
+EMAIL_HOST_PASSWORD = "xwgizaqrwwekzfnk"
+
+OAUTH_CALLBACK_URL = "https://lenta.uz/auth"
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+EMAIL_CONFIRMATION_HMAC = False  # noqa
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+# ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 86400
+LOGIN_URL = "https://beta.imkon.uz/login/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/auth/login/"
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_TEMPLATE_EXTENSION = "html"
+SOCIALACCOUNT_AUTO_SIGNUP = True  # noqa
+
+
+VALID_MOBILE_COUNTRY_CODES = ["998"]
+REGISTRATION_SEND_SMS_INTERVAL = 120
+REGISTER_ATTEMPTS_LIMIT = 3
+VERIFY_ATTEMPTS_LIMIT = 10
+REGISTRATION_BAN_MINUTES = 30
