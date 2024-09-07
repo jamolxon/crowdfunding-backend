@@ -118,7 +118,7 @@ class CampaignAnalysis:
 
 ## Recommendation System
 class RecommendationSystem:
-    def __init__(self, n_components=5):
+    def __init__(self, n_components=1):
         self.svd = TruncatedSVD(n_components=n_components, random_state=42)
 
     def preprocess(self, input_data):
