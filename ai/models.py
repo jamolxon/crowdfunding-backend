@@ -53,7 +53,7 @@ class Interaction(models.Model):
 
 # ML Models 
     
-
+## Campaign Analysis
 class CampaignAnalysis:
     def __init__(self):
 
@@ -116,7 +116,7 @@ class CampaignAnalysis:
         return df
 
 
-
+## Recommendation System
 class RecommendationSystem:
     def __init__(self, n_components=5):
         self.svd = TruncatedSVD(n_components=n_components, random_state=42)
@@ -152,3 +152,13 @@ class RecommendationSystem:
         recommended_campaigns = matrix.columns[top_campaigns]
 
         return list(recommended_campaigns)
+    
+
+# AI-ChatBot 
+class ChatMessage(models.Model):
+    role = models.CharField(max_length=10) # Human or AI
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.role}: {self.content[:50]}"
