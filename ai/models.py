@@ -24,8 +24,8 @@ class CampaignData(models.Model):
     is_video_included = models.CharField(
         _("campaign video is included"), max_length=256
     )
-    social_media_presence = models.IntegerField(_("social media presence"))
     number_of_updates = models.IntegerField(_("number of updates"))
+    user_id = models.CharField(_("user id"), max_length=256, default='default_user')
 
     def __str__(self):
         return f"{self.campaign_id}"

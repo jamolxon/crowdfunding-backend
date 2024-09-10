@@ -28,8 +28,8 @@ def load_campaign_data():
                         currency=info["Currency"],
                         owner_experience=info["OwnerExperience"],
                         is_video_included=info["VideoIncluded"],
-                        social_media_presence=info["SocialMediaPresence"],
                         number_of_updates=info["NumUpdates"],
+                        user_id=info['UserID']
                     )
             except IntegrityError:
                 campaign = CampaignData.objects.get(id=id_count)
@@ -42,8 +42,8 @@ def load_campaign_data():
                 campaign.currency = info["Currency"]
                 campaign.owner_experience = info["OwnerExperience"]
                 campaign.is_video_included = info["VideoIncluded"]
-                campaign.social_media_presence = info["SocialMediaPresence"]
                 campaign.number_of_updates = info["NumUpdates"]
+                campaign.user_id = info['UserID']
                 campaign.save()
 
             id_count += 1

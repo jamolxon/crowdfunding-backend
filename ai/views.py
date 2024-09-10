@@ -1,4 +1,3 @@
-import getpass
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse, HttpResponse
@@ -33,8 +32,8 @@ def campaign_predict(request, campaign_id):
             'Currency': campaign.currency,
             'OwnerExperience': campaign.owner_experience,
             'VideoIncluded': campaign.is_video_included,
-            'SocialMediaPresence': campaign.social_media_presence,
             'NumUpdates': campaign.number_of_updates,
+            'UserID': campaign.user_id
         }
 
         campaign_analyzer = CampaignAnalysis()
