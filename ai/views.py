@@ -1,5 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.http import JsonResponse, HttpResponse
 from .models import *
 from django.shortcuts import render
@@ -105,6 +107,17 @@ system_prompt = (
 """
 )
 
+@swagger_auto_schema(
+    method='post',
+    operation_description="Send a user message and get an AI-generated response",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'message': openapi.Schema(type=openapi.TYPE_STRING, description='User message'),
+        },
+        required=['message']
+    )
+)
 
 @api_view(['POST'])
 def chatbot_respond(request):
@@ -156,6 +169,7 @@ def get_chat_history(request):
     messages = ChatMessage.objects.all()
     serializer = ChatMessageSerializer(messages, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 @api_view(['DELETE'])
