@@ -35,9 +35,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "ai",
+    "campaign",
     "core",
     "common",
     # 3rd-party apps the project depends on
+    "django_resized",
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
@@ -198,6 +200,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
+
+
+DJANGORESIZED_DEFAULT_SIZE = [1200, 800]  # noqa
+DJANGORESIZED_DEFAULT_QUALITY = 85  # noqa
+DJANGORESIZED_DEFAULT_KEEP_META = True  # noqa
+DJANGORESIZED_DEFAULT_FORCE_FORMAT = "WEBP"  # noqa
+DJANGORESIZED_DEFAULT_NORMALIZE_ROTATION = True  # noqa
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

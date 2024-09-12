@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django_resized import ResizedImageField
 from django.core.signing import TimestampSigner
 
+from django_resized import ResizedImageField
 
 from common.manager import UserManager
 
@@ -25,7 +26,7 @@ class User(AbstractUser):
         _("email"),
         unique=True,
         error_messages={
-            "error": _("Bunday email mavjud."),
+            "error": _("Email exists!"),
         },
         null=True,
     )
@@ -59,8 +60,12 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    @property
+    def avatar_url(self):
+        return f"{settings.HOST}{self.avatar.url}" if self.avatar else ""
+
     def __str__(self):
-        return f"{self.email}"
+        return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
         if not self.username:
