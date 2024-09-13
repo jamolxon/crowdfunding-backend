@@ -74,6 +74,7 @@ class Campaign(BaseModel):
         verbose_name=_("image"),
         quality=90,
         upload_to="campaigns/%Y/%m",
+        null=True
     )
     video = models.FileField(
         _("video"),

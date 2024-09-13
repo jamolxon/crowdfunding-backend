@@ -5,8 +5,10 @@ from django.db.models import Q
 # from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser
 from rest_framework.generics import (
     ListAPIView,
+    UpdateAPIView,
     RetrieveAPIView,
     GenericAPIView,
     CreateAPIView,
@@ -19,6 +21,7 @@ from campaign.serializers import (
     CampaignListSerializer,
     CampaignDetailSerializer,
     InvestmentSerializer,
+    CampaignCreateSerializer
 )
 from campaign.models import Campaign, CampaignCategory, Investment, Reward
 from helpers import pagination
@@ -91,6 +94,20 @@ class StatisticsAPIView(APIView):
         )
 
 
+
+class CampaignCreateView(CreateAPIView):
+    queryset = Campaign.objects.all()
+    serializer_class = CampaignCreateSerializer
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (MultiPartParser, )
+
+
+class CampaignUpdateView(UpdateAPIView):
+    queryset = Campaign.objects.all()
+    serializer_class = CampaignCreateSerializer
+    permission_classes = (IsAuthenticated,)
+
+
 class CreatePaymentIntentView(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -149,3 +166,5 @@ class InvestmentCreateView(CreateAPIView):
         return Response(
             InvestmentSerializer(investment).data, status=status.HTTP_201_CREATED
         )
+
+

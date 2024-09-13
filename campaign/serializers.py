@@ -118,3 +118,10 @@ class InvestmentSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["user", "status", "created_at"]
+
+
+class CampaignCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = ("id", "title", "subtitle", "author", "category", "image", "video", "goal_amount", "start_date", "end_date", "content")
+
