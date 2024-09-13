@@ -42,19 +42,18 @@ class RegisterView(ObtainAuthToken, CreateAPIView):
         )
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-
+        
         if user.code_expiration < timezone.now() - timezone.timedelta(
             minutes=settings.REGISTRATION_EXPIRATION_CODE_MINUTES
         ):  # noqa
             user.code = generate_pin()
-            print(user.code)
             user.code_expiration = timezone.now()
             user.save(update_fields=["code", "code_expiration"])
 
         send_mail(
             "Crowdfunding registration confirmation code.",
-            "Thanks for registering on our platform",
-            "investmedemo@gmail.com",
+            f"Thanks for registering on our platform. Your code is {user.code}",
+            settings.EMAIL_HOST_USER,
             [user.email],
         )
 
@@ -124,6 +123,14 @@ class PasswordResetView(GenericAPIView):
             user.code = generate_pin()
             user.code_expiration = timezone.now()
             user.save(update_fields=["code", "code_expiration"])
+    
+        send_mail(
+            "Crowdfunding password reset confirmation code.",
+            f"Your code is {user.code}",
+            settings.EMAIL_HOST_USER,
+            [user.email],
+        )
+
 
             # send_email_restore_password(
             #     email=user.email,
@@ -132,9 +139,6 @@ class PasswordResetView(GenericAPIView):
             #     uid=urlsafe_base64_encode(force_bytes(user.pk)),
             #     token=account_activation_token.make_token(user),
             # )
-        print("THE USER CODE IS")
-        print(user.code)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

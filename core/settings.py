@@ -229,9 +229,7 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"  # False
 EMAIL_PORT = os.getenv("EMAIL_PORT")  # 587
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # your email address
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # your password
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL"
-)  # email ending with @sendinblue.com
+DEFAULT_FROM_EMAIL = os.getenv( "DEFAULT_FROM_EMAIL")  # email ending with @sendinblue.com
 
 OAUTH_CALLBACK_URL = "https://lenta.uz/auth"
 
