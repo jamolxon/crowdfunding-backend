@@ -55,6 +55,7 @@ class RegisterView(ObtainAuthToken, CreateAPIView):
             f"Thanks for registering on our platform. Your code is {user.code}",
             settings.EMAIL_HOST_USER,
             [user.email],
+            fail_silently=False
         )
 
         # send_email_confirmation(
@@ -129,6 +130,7 @@ class PasswordResetView(GenericAPIView):
             f"Your code is {user.code}",
             settings.EMAIL_HOST_USER,
             [user.email],
+            fail_silently=False
         )
 
 
