@@ -1,3 +1,5 @@
+import os
+
 # Configuration of project in settings.py is overridden here
 
 ALLOWED_HOSTS = ["*"]
@@ -6,15 +8,15 @@ DEBUG = True
 
 # Database configuration
 
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "lenta",
-        "USER": "postgres",
-        "PASSWORD": "admin",
-        "HOST": "localhost",
-        "PORT": "5432",
-        "ATOMIC_REQUESTS": True,
+        "NAME": os.getenv("POSTGRES_DB", "postgres"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("POSTGRES_HOST", "postgres"),
+        "PORT": os.getenv("POSTGRES_PORT", 5432),
     }
 }
 
@@ -22,8 +24,8 @@ DATABASES = {
 
 HOST = "http://localhost:8000"
 
-FRONT_REDIRECT_URL = "https://lenta.uicgroup.tech/auth/verify/"
-MODERATION_HOST = "https://lentabeta.xn--h28h.uz"
+FRONT_REDIRECT_URL = "https://domain-name/auth/verify/"
+MODERATION_HOST = "https://domain-name.uz"
 
 # CACHES = {
 #     "default": {
@@ -49,5 +51,3 @@ MODERATION_HOST = "https://lentabeta.xn--h28h.uz"
 # CELERY_RESULT_SERIALIZER = "json"
 # CELERY_AMQP_TASK_RESULT_EXPIRES = 1000
 # CELERY_TIMEZONE = "Asia/Tashkent"
-
-

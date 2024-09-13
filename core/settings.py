@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
     "drf_yasg",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -172,6 +174,13 @@ SWAGGER_SETTINGS = {
 }
 
 
+CORS_ALLOW_METHODS = ["*"]
+CORS_ALLOW_HEADERS = ["*"]
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+
 AUTH_USER_MODEL = "common.user"
 
 
@@ -213,22 +222,16 @@ DJANGORESIZED_DEFAULT_NORMALIZE_ROTATION = True  # noqa
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-try:
-    from .local_settings import *  # noqa
-except ImportError:
-    print(
-        "Please create local_settings.py file and configure it using local_settings.example.py file in the core directory."
-    )
-
-
-# Email will be sent to user emails. This is used in production
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = "smtp.yandex.ru"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "noreply@lenta.uz"
-EMAIL_HOST_PASSWORD = "xwgizaqrwwekzfnk"
+EMAIL_HOST = os.getenv("EMAIL_HOST")  # smtp-relay.sendinblue.com
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"  # False
+EMAIL_PORT = os.getenv("EMAIL_PORT")  # 587
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # your email address
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # your password
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL"
+)  # email ending with @sendinblue.com
 
 OAUTH_CALLBACK_URL = "https://lenta.uz/auth"
 
@@ -256,3 +259,11 @@ REGISTRATION_SEND_SMS_INTERVAL = 120
 REGISTER_ATTEMPTS_LIMIT = 3
 VERIFY_ATTEMPTS_LIMIT = 10
 REGISTRATION_BAN_MINUTES = 30
+
+
+try:
+    from .local_settings import *  # noqa
+except ImportError:
+    print(
+        "Please create local_settings.py file and configure it using local_settings.example.py file in the core directory."
+    )

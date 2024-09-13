@@ -10,6 +10,7 @@ from rest_framework import status
 from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django.core.mail import send_mail
 
 
 from common.models import User
@@ -45,15 +46,17 @@ class RegisterView(ObtainAuthToken, CreateAPIView):
         if user.code_expiration < timezone.now() - timezone.timedelta(
             minutes=settings.REGISTRATION_EXPIRATION_CODE_MINUTES
         ):  # noqa
-            print("inside if")
             user.code = generate_pin()
-            print("THE CODE IS")
-            print(user.code)
-            print(user.code)
             print(user.code)
             user.code_expiration = timezone.now()
             user.save(update_fields=["code", "code_expiration"])
-        print("after if")
+
+        send_mail(
+            "Crowdfunding registration confirmation code.",
+            "Thanks for registering on our platform",
+            "investmedemo@gmail.com",
+            [user.email],
+        )
 
         # send_email_confirmation(
         #     email=user.email,
