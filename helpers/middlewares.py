@@ -39,9 +39,9 @@ class CampaignViewMiddleware(MiddlewareMixin):
                 else:
                     ip = request.META.get("REMOTE_ADDR")
 
-                if request.user.is_authenticated:
-                    campaign = Campaign.objects.get(id=view_kwargs["pk"], author=request.user)
+                campaign = Campaign.objects.get(id=view_kwargs["pk"])
 
+                if request.user.is_authenticated:
                     if not CampaignViews.objects.filter(ip=ip, campaign=campaign, user=request.user).exists():
                         CampaignViews.objects.create(campaign=campaign, user=request.user, ip=ip)
 
@@ -52,7 +52,6 @@ class CampaignViewMiddleware(MiddlewareMixin):
                     ).update(count=F("count") + 1)
 
                 else:
-                    campaign = Campaign.objects.get(id=view_kwargs["pk"])
                     if not CampaignViews.objects.filter(
                         ip=ip,
                         campaign=campaign
