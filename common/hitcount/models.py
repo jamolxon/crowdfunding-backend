@@ -7,6 +7,7 @@ from helpers.models import BaseModel
 class CampaignViews(BaseModel):
     created = models.DateTimeField(auto_now_add=True, editable=False)
     modified = models.DateTimeField(auto_now=True, editable=False)
+    user = models.OneToOneField("common.User", on_delete=models.CASCADE, related_name="views", null=True)
     campaign = models.ForeignKey(
         "campaign.Campaign", on_delete=models.SET_NULL, null=True, related_name="views"
     )

@@ -1,15 +1,5 @@
-import ipaddress
-
-from axes.helpers import get_client_ip_address
-
 from django.db.models import F
-from django.utils import timezone
-from django.core.exceptions import PermissionDenied
-from django.conf import settings
-from django.http import HttpResponseForbidden, JsonResponse
 from django.utils.deprecation import MiddlewareMixin
-
-from rest_framework.response import Response
 
 from common.hitcount.models import CampaignViews
 from campaign.models import Campaign
@@ -49,17 +39,30 @@ class CampaignViewMiddleware(MiddlewareMixin):
                 else:
                     ip = request.META.get("REMOTE_ADDR")
 
-                campaign = Campaign.objects.get(id=view_kwargs["pk"])
-                if not CampaignViews.objects.filter(
-                    ip=ip,
-                    campaign=campaign
-                ).exists():
-                    CampaignViews.objects.create(campaign=campaign, ip=ip)
+                if request.user.is_authenticated:
+                    campaign = Campaign.objects.get(id=view_kwargs["pk"], author=request.user)
 
-                CampaignViews.objects.filter(
-                    campaign=campaign,
-                    ip=ip,
-                ).update(count=F("count") + 1)
+                    if not CampaignViews.objects.filter(ip=ip, campaign=campaign, user=request.user).exists():
+                        CampaignViews.objects.create(campaign=campaign, user=request.user, ip=ip)
+
+                    CampaignViews.objects.filter(
+                        campaign=campaign,
+                        user=request.user,
+                        ip=ip,
+                    ).update(count=F("count") + 1)
+
+                else:
+                    campaign = Campaign.objects.get(id=view_kwargs["pk"])
+                    if not CampaignViews.objects.filter(
+                        ip=ip,
+                        campaign=campaign
+                    ).exists():
+                        CampaignViews.objects.create(campaign=campaign, ip=ip)
+
+                    CampaignViews.objects.filter(
+                        campaign=campaign,
+                        ip=ip,
+                    ).update(count=F("count") + 1)
 
         except Exception as e:  # noqa: E722
             print(e)
