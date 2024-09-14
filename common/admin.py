@@ -6,4 +6,7 @@ from common.models import CampaignViews
 
 admin.site.register(User)
 
-admin.site.register(CampaignViews)
+
+@admin.register(CampaignViews)
+class CampaignViewsAdmin(admin.ModelAdmin):
+    list_display = ("campaign", "user", "count")
