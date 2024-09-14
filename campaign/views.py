@@ -46,14 +46,14 @@ class CampaignCategoryChildrenListView(ListAPIView):
 
 
 class CampaignTopListView(ListAPIView):
-    queryset = Campaign.objects.filter(is_top=True).order_by("-creation_date")[:6]
+    queryset = Campaign.objects.filter(is_top=True).order_by("-creation_date")[:8]
     serializer_class = CampaignListSerializer
     pagination_class = None
 
 
 class CampaignRecommendedListView(ListAPIView):
     queryset = Campaign.objects.filter(is_recommended=True).order_by("-creation_date")[
-        :6
+        :8
     ]
     serializer_class = CampaignListSerializer
     pagination_class = None
