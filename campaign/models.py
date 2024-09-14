@@ -95,6 +95,7 @@ class Campaign(BaseModel):
     tags = models.ManyToManyField(
         CampaignTag, related_name="campaigns", verbose_name=_("tags")
     )
+    view_count = models.BigIntegerField(_("views count"), default=0)
 
     @property
     def image_url(self):

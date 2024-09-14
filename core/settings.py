@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "core",
     "common",
     # 3rd-party apps the project depends on
+    "axes",
     "django_resized",
     "rest_framework",
     "rest_framework.authtoken",
@@ -56,6 +57,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    # Hitcount views for campaign middleware
+    "helpers.middlewares.CampaignViewMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"

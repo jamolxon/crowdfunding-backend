@@ -8,6 +8,7 @@ from django.core.signing import TimestampSigner
 from django_resized import ResizedImageField
 
 from common.manager import UserManager
+from common.hitcount.models import CampaignViews
 
 
 class RoleChoices(models.TextChoices):

@@ -1,6 +1,6 @@
 # import stripe
 
-from django.db.models import Q
+from django.db.models import Q, F, Count
 
 # from django.conf import settings
 from rest_framework import status
@@ -82,9 +82,13 @@ class CampaignListView(ListAPIView):
 
 
 class CampaignDetailView(RetrieveAPIView):
-    queryset = Campaign.objects.all()
+    queryset = Campaign.objects.all().annotate(unique_views=Count("views"))
     serializer_class = CampaignDetailSerializer
     lookup_field = "pk"
+
+    def retrieve(self, request, *args, **kwargs):
+        Campaign.objects.filter(id=self.kwargs["pk"]).update(view_count=F("view_count") + 1)
+        return super().retrieve(request, *args, **kwargs)
 
 
 class StatisticsAPIView(APIView):
