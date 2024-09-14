@@ -42,14 +42,13 @@ class CampaignViewMiddleware(MiddlewareMixin):
                 campaign = Campaign.objects.get(id=view_kwargs["pk"])
 
                 if request.user.is_authenticated:
-                    if not CampaignViews.objects.filter(ip=ip, campaign=campaign, user=request.user).exists():
+                    if not CampaignViews.objects.filter(ip=ip, campaign=campaign).exists():
                         CampaignViews.objects.create(campaign=campaign, user=request.user, ip=ip)
 
                     CampaignViews.objects.filter(
                         campaign=campaign,
-                        user=request.user,
                         ip=ip,
-                    ).update(count=F("count") + 1)
+                    ).update(count=F("count") + 1, user=request.user)
 
                 else:
                     if not CampaignViews.objects.filter(
