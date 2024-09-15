@@ -1,13 +1,10 @@
 from datetime import timedelta
-
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
-
 from django_resized import ResizedImageField
-
 from helpers.models import BaseModel
 from common.models import User
 
@@ -68,13 +65,14 @@ class Campaign(BaseModel):
     )
     goal_amount = models.DecimalField(max_digits=10, decimal_places=2)
     current_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    image = ResizedImageField(
-        size=[1200, 800],
-        crop=["middle", "center"],
-        verbose_name=_("image"),
-        quality=90,
-        upload_to="campaigns/%Y/%m",
-    )
+    # image = ResizedImageField(
+    #     size=[1200, 800],
+    #     crop=["middle", "center"],
+    #     verbose_name=_("image"),
+    #     quality=90,
+    #     upload_to="campaigns/%Y/%m",
+    # )
+    image = models.ImageField(upload_to='campaign_images/', null=True, blank=True)
     video = models.FileField(
         _("video"),
         upload_to="campaigns/videos/%Y/%m",
@@ -94,6 +92,9 @@ class Campaign(BaseModel):
     tags = models.ManyToManyField(
         CampaignTag, related_name="campaigns", verbose_name=_("tags")
     )
+
+    success_rate = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # Stores success rate as a percentage
+    prediction = models.BooleanField(null=True, blank=True)
 
     @property
     def image_url(self):

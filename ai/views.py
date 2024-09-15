@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.http import JsonResponse, HttpResponse
 from .models import *
+from campaign.models import *
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -21,32 +22,38 @@ from dotenv import load_dotenv
 @api_view(['GET'])
 def campaign_predict(request, campaign_id):
     try:
-        
-        campaign = CampaignData.objects.get(campaign_id=campaign_id)
-
+        campaign = Campaign.objects.get(id=campaign_id)
         input_data = {
-            'CampaignID': campaign_id,
-            'GoalAmount': campaign.goal_amount,
-            'RaisedAmount': campaign.raised_amount,
-            'DurationDays': campaign.duration_days,
-            'NumBackers': campaign.number_of_backers,
+            'GoalAmount': campaign.goal_amount / 10000, # as models were trained in USD.
+            'RaisedAmount': campaign.current_amount / 10000, # as models were trained in USD
+            'DurationDays': campaign.duration,
+            'NumBackers': Investment.objects.values('user').distinct().count(),
             'Category': campaign.category,
-            'Currency': campaign.currency,
-            'OwnerExperience': campaign.owner_experience,
-            'VideoIncluded': campaign.is_video_included,
-            'NumUpdates': campaign.number_of_updates,
-            'UserID': campaign.user_id
+            'Currency': "USD", # default
+            'VideoIncluded': "Yes" if campaign.video or campaign.image else "No",
         }
 
         campaign_analyzer = CampaignAnalysis()
         result = campaign_analyzer.predict(input_data)
 
-        if isinstance(result, float):  
-            return JsonResponse({'CampaignID': campaign_id, 'SuccessRate': f'{result:.2f}%'})
-        else:  # Prediction (e.g., 0 or 1 for success/failure)
-            return JsonResponse({'CampaignID': campaign_id, 'Prediction': int(result)})
+        campaign_analyzer = CampaignAnalysis()
+        result = campaign_analyzer.predict(input_data)
+
+        # Store the result in the database
+        if isinstance(result, float):  # If the result is a success rate (e.g., a percentage)
+            campaign.success_rate = result  # Store the success rate
+            campaign.prediction = None  # Clear any previous success/failure prediction
+            response_data = {'CampaignID': campaign_id, 'SuccessRate': f'{result:.2f}%'}
+        else:  # If the result is a prediction (e.g., 0 or 1 for success/failure)
+            campaign.prediction = bool(result)  # Store the success/failure prediction
+            campaign.success_rate = None  # Clear any previous success rate
+            response_data = {'CampaignID': campaign_id, 'Prediction': int(result)}
+        
+        campaign.save()  # Save the updated campaign to the database
+        
+        return JsonResponse(response_data)
     
-    except CampaignData.DoesNotExist:
+    except Campaign.DoesNotExist:
         return HttpResponse(status=404, content=f'CampaignID {campaign_id} not found')
     except Exception as e:
         return HttpResponse(status=500, content=f'Error: {str(e)}')
@@ -59,7 +66,7 @@ def recommend_campaigns(request, user_id, top_n=5):
 
         if not interactions.exists():
             # Fallback: recommend the top N popular campaigns (based on the number of backers)
-            popular_campaigns = CampaignData.objects.order_by('-number_of_backers')[:top_n]
+            popular_campaigns = Campaign.objects.filter(is_recommended=True).order_by("-creation_date")[top_n]
             recommended_campaigns = [campaign.campaign_id for campaign in popular_campaigns]
 
             return Response({

@@ -10,33 +10,6 @@ from django.conf import settings
 
 # For Datasets
 
-
-class CampaignData(models.Model):
-    campaign_id = models.CharField(_("campaign id"), max_length=256)
-    goal_amount = models.IntegerField(_("goal amount"))
-    raised_amount = models.DecimalField(
-        _("raised amount"), max_digits=19, decimal_places=10
-    )
-    duration_days = models.IntegerField(_("duration days"))
-    number_of_backers = models.IntegerField(_("number of backers"))
-    category = models.CharField(_("category"), max_length=256)
-    currency = models.CharField(_("currency"), max_length=256)
-    owner_experience = models.IntegerField(_("owner experience"))
-    is_video_included = models.CharField(
-        _("campaign video is included"), max_length=256
-    )
-    number_of_updates = models.IntegerField(_("number of updates"))
-    user_id = models.CharField(_("user id"), max_length=256, default='default_user')
-
-    def __str__(self):
-        return f"{self.campaign_id}"
-
-    class Meta:
-        db_table = "campaign_data"
-        verbose_name = _("campaign data")
-        verbose_name_plural = _("campaign data")
-
-
 class Interaction(models.Model):
     user_id = models.CharField(_("user id"), max_length=256)
     campaign_id = models.CharField(_("campaign id"), max_length=256)
@@ -67,8 +40,8 @@ class CampaignAnalysis:
             settings.BASE_DIR, "ai", "models", "label_encoders.pkl"
         )
 
-        # Loading Decision Tree Classifier
-
+        # Loading Random Forests
+        
         if os.path.exists(self.model):
             print(f"Loading model from: {self.model}")
             try:
@@ -120,7 +93,9 @@ class CampaignAnalysis:
                 try:
                     df[column] = self.label_encoders[column].transform(df[column])
                 except Exception as e:
-                    raise ValueError(f"Error encoding column '{column}': {e}")
+                    print(f"Error encoding column '{column}': {e}")
+                    df[column] = self.label_encoders[column].fit_transform(df[column])
+
             else:
                 print(
                     f"No label encoder found for column '{column}', skipping encoding."
