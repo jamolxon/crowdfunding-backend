@@ -9,6 +9,7 @@ from common.auth.views import (
     PasswordResetVerifyCodeView,
     PasswordResetChangeView,
     PasswordResetView,
+    GoogleLogin
 )
 
 
@@ -28,4 +29,5 @@ urlpatterns = [
         PasswordResetChangeView.as_view(),
         name="password_reset_change",
     ),
+    path("google/", GoogleLogin.as_view(), name="google-login"),
 ]

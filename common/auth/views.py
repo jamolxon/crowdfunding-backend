@@ -13,6 +13,12 @@ from django.utils.translation import gettext_lazy as _
 from django.core.mail import send_mail
 
 
+from allauth.account.adapter import get_adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.views import LoginView as RestLoginView
+
+
 from common.models import User
 
 from .serializers import (
@@ -22,6 +28,7 @@ from .serializers import (
     UserPasswordResetSerializer,
     PasswordResetChangeSerializer,
     PasswordResetVerifyCodeSerializer,
+    SocialLoginSerializer
 )
 from .exceptions import UserLoggedIn
 from .utils import generate_pin
@@ -188,3 +195,17 @@ class PasswordResetChangeView(UpdateAPIView):
         return Response(
             {"detail": "Parol muvaffaqiyatli o'zgartirildi."}, status=status.HTTP_200_OK
         )
+
+
+class SocialLoginView(RestLoginView):
+    serializer_class = SocialLoginSerializer
+
+    def process_login(self):
+        get_adapter(self.request).login(self.request, self.user)
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = settings.OAUTH_CALLBACK_URL
+    client_class = OAuth2Client
+

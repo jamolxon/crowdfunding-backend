@@ -39,6 +39,12 @@ INSTALLED_APPS = [
     "core",
     "common",
     # 3rd-party apps the project depends on
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",  # noqa
+    "social_django",
+    "dj_rest_auth",
     "axes",
     "django_resized",
     "rest_framework",
@@ -57,6 +63,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",  # new
+    "allauth.account.middleware.AccountMiddleware",
+    "axes.middleware.AxesMiddleware",
 
     # Hitcount views for campaign middleware
     "helpers.middlewares.CampaignViewMiddleware",
@@ -75,6 +84,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -82,6 +93,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
+INTERNAL_IPS = ["127.0.0.1"]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -155,12 +167,12 @@ SIMPLE_JWT = {
 
 
 AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
-    # "social_core.backends.google.GoogleOAuth2",
+    "social_core.backends.google.GoogleOAuth2",
     # "social_core.backends.facebook.FacebookOAuth2",
     "django.contrib.auth.backends.ModelBackend",
     # # `allauth` specific authentication methods, such as login by e-mail
-    # "allauth.account.auth_backends.AuthenticationBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+    "axes.backends.AxesStandaloneBackend"
 ]
 
 
@@ -171,6 +183,86 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
     "django.contrib.auth.hashers.ScryptPasswordHasher",
 ]
+
+
+
+SOCIALACCOUNT_PROVIDERS = {  # noqa
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    },
+    # "facebook": {
+    #     "METHOD": "oauth2",
+    #     "SCOPE": ["email", "public_profile"],
+    #     "AUTH_PARAMS": {"auth_type": "reauthenticate"},
+    #     "INIT_PARAMS": {"cookie": True},
+    #     "FIELDS": [
+    #         "id",
+    #         "email",
+    #         "first_name",
+    #         "last_name",
+    #         "middle_name",
+    #         "name",
+    #         "name_format",
+    #         "picture",
+    #         "short_name",
+    #     ],
+    #     "EXCHANGE_TOKEN": True,
+    #     "VERIFIED_EMAIL": False,
+    #     "VERSION": "v7.0",
+    # },
+    # "telegram": {"TOKEN": "your-token-here"},  # noqa
+}
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
+    "521439139122-t8itloi8g5l7k13bastf0n618nhm9v4i.apps.googleusercontent.com"
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+]
+
+OAUTH_CALLBACK_URL = "http://localhost:3000/auth"
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+EMAIL_CONFIRMATION_HMAC = False 
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+LOGIN_URL = "http://localhost:3000/login/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/auth/login/"
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_TEMPLATE_EXTENSION = "html"
+SOCIALACCOUNT_AUTO_SIGNUP = True 
+
+
+SOCIAL_AUTH_PIPELINE = (
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "social_core.pipeline.social_auth.social_user",
+    "social_core.pipeline.user.get_username",
+    "social_core.pipeline.social_auth.associate_by_email",
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
+)
 
 
 SWAGGER_SETTINGS = {
@@ -247,7 +339,6 @@ ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 EMAIL_CONFIRMATION_HMAC = False  # noqa
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 # ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 86400
 LOGIN_URL = "https://beta.imkon.uz/login/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/auth/login/"
