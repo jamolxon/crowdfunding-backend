@@ -196,34 +196,14 @@ SOCIALACCOUNT_PROVIDERS = {  # noqa
             "access_type": "online",
         },
     },
-    # "facebook": {
-    #     "METHOD": "oauth2",
-    #     "SCOPE": ["email", "public_profile"],
-    #     "AUTH_PARAMS": {"auth_type": "reauthenticate"},
-    #     "INIT_PARAMS": {"cookie": True},
-    #     "FIELDS": [
-    #         "id",
-    #         "email",
-    #         "first_name",
-    #         "last_name",
-    #         "middle_name",
-    #         "name",
-    #         "name_format",
-    #         "picture",
-    #         "short_name",
-    #     ],
-    #     "EXCHANGE_TOKEN": True,
-    #     "VERIFIED_EMAIL": False,
-    #     "VERSION": "v7.0",
-    # },
-    # "telegram": {"TOKEN": "your-token-here"},  # noqa
 }
 
-# SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-#     "https://www.googleapis.com/auth/userinfo.email",
-#     "https://www.googleapis.com/auth/userinfo.profile",
-# ]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+]
 
 OAUTH_CALLBACK_URL = "http://localhost:3000/auth"
 
