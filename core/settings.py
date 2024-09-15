@@ -219,12 +219,6 @@ SOCIALACCOUNT_PROVIDERS = {  # noqa
     # "telegram": {"TOKEN": "your-token-here"},  # noqa
 }
 
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
-    "521439139122-t8itloi8g5l7k13bastf0n618nhm9v4i.apps.googleusercontent.com"
-)
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
-
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     "https://www.googleapis.com/auth/userinfo.email",
