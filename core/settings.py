@@ -39,14 +39,23 @@ INSTALLED_APPS = [
     "core",
     "common",
     # 3rd-party apps the project depends on
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",  # noqa
+    "social_django",
+    "dj_rest_auth",
+    "axes",
     "django_resized",
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
     "drf_yasg",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -54,6 +63,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",  # new
+    "allauth.account.middleware.AccountMiddleware",
+    "axes.middleware.AxesMiddleware",
+
+    # Hitcount views for campaign middleware
+    "helpers.middlewares.CampaignViewMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -69,6 +84,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -76,6 +93,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
+INTERNAL_IPS = ["127.0.0.1"]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -149,12 +167,12 @@ SIMPLE_JWT = {
 
 
 AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
-    # "social_core.backends.google.GoogleOAuth2",
+    "social_core.backends.google.GoogleOAuth2",
     # "social_core.backends.facebook.FacebookOAuth2",
     "django.contrib.auth.backends.ModelBackend",
     # # `allauth` specific authentication methods, such as login by e-mail
-    # "allauth.account.auth_backends.AuthenticationBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+    "axes.backends.AxesStandaloneBackend"
 ]
 
 
@@ -167,9 +185,73 @@ PASSWORD_HASHERS = [
 ]
 
 
+
+SOCIALACCOUNT_PROVIDERS = {  # noqa
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    },
+}
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+]
+
+OAUTH_CALLBACK_URL = "http://localhost:3000/auth"
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+EMAIL_CONFIRMATION_HMAC = False 
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+LOGIN_URL = "http://localhost:3000/login/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/auth/login/"
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_TEMPLATE_EXTENSION = "html"
+SOCIALACCOUNT_AUTO_SIGNUP = True 
+
+
+SOCIAL_AUTH_PIPELINE = (
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "social_core.pipeline.social_auth.social_user",
+    "social_core.pipeline.user.get_username",
+    "social_core.pipeline.social_auth.associate_by_email",
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+
+
 SWAGGER_SETTINGS = {
     "JSON_EDITOR": True,
 }
+
+
+CORS_ALLOW_METHODS = ["*"]
+CORS_ALLOW_HEADERS = ["*"]
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 AUTH_USER_MODEL = "common.user"
@@ -213,22 +295,14 @@ DJANGORESIZED_DEFAULT_NORMALIZE_ROTATION = True  # noqa
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-try:
-    from .local_settings import *  # noqa
-except ImportError:
-    print(
-        "Please create local_settings.py file and configure it using local_settings.example.py file in the core directory."
-    )
-
-
-# Email will be sent to user emails. This is used in production
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = "smtp.yandex.ru"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "noreply@lenta.uz"
-EMAIL_HOST_PASSWORD = "xwgizaqrwwekzfnk"
+EMAIL_HOST = os.getenv("EMAIL_HOST")  # smtp-relay.sendinblue.com
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"  # False
+EMAIL_PORT = os.getenv("EMAIL_PORT")  # 587
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # your email address
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # your password
+DEFAULT_FROM_EMAIL = os.getenv( "DEFAULT_FROM_EMAIL")  # email ending with @sendinblue.com
 
 OAUTH_CALLBACK_URL = "https://lenta.uz/auth"
 
@@ -242,7 +316,6 @@ ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 EMAIL_CONFIRMATION_HMAC = False  # noqa
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 # ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 86400
 LOGIN_URL = "https://beta.imkon.uz/login/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/auth/login/"
@@ -256,3 +329,11 @@ REGISTRATION_SEND_SMS_INTERVAL = 120
 REGISTER_ATTEMPTS_LIMIT = 3
 VERIFY_ATTEMPTS_LIMIT = 10
 REGISTRATION_BAN_MINUTES = 30
+
+
+try:
+    from .local_settings import *  # noqa
+except ImportError:
+    print(
+        "Please create local_settings.py file and configure it using local_settings.example.py file in the core directory."
+    )

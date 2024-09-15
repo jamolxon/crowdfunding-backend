@@ -2,9 +2,11 @@ from django.urls import path
 
 from campaign.views import (
     CampaignCategoryListView,
+    CampaignCreateView,
     CampaignTopListView,
     CampaignRecommendedListView,
     CampaignDetailView,
+    CampaignUpdateView,
     StatisticsAPIView,
     CampaignCategoryChildrenListView,
     CampaignListView,
@@ -13,6 +15,8 @@ from campaign.views import (
 
 urlpatterns = [
     path("", CampaignListView.as_view(), name="campaign-list"),
+    path("update/<int:pk>/", CampaignUpdateView.as_view(), name="campaign-update"),
+    path("create/", CampaignCreateView.as_view(), name="campaign-create"),
     path("category/", CampaignCategoryListView.as_view(), name="campaign-category"),
     path(
         "category/<int:pk>/",

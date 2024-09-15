@@ -58,6 +58,7 @@ class CampaignDetailSerializer(serializers.ModelSerializer):
     backers = serializers.SerializerMethodField()
     tags = CampaignTagSerializer(many=True)
     campaign_images = CampaignImageSerializer(many=True)
+    unique_views = serializers.IntegerField()
 
     class Meta:
         model = Campaign
@@ -74,6 +75,8 @@ class CampaignDetailSerializer(serializers.ModelSerializer):
             "content",
             "tags",
             "campaign_images",
+            "unique_views",
+            "view_count"
         )
 
     def get_success_rate(self, obj):
@@ -118,3 +121,10 @@ class InvestmentSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["user", "status", "created_at"]
+
+
+class CampaignCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = ("id", "title", "subtitle", "author", "category", "image", "video", "goal_amount", "start_date", "end_date", "content")
+

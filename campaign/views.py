@@ -1,12 +1,14 @@
 # import stripe
 
-from django.db.models import Q
+from django.db.models import Q, F, Count
 
 # from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser
 from rest_framework.generics import (
     ListAPIView,
+    UpdateAPIView,
     RetrieveAPIView,
     GenericAPIView,
     CreateAPIView,
@@ -19,6 +21,7 @@ from campaign.serializers import (
     CampaignListSerializer,
     CampaignDetailSerializer,
     InvestmentSerializer,
+    CampaignCreateSerializer
 )
 from campaign.models import Campaign, CampaignCategory, Investment, Reward
 from helpers import pagination
@@ -43,14 +46,14 @@ class CampaignCategoryChildrenListView(ListAPIView):
 
 
 class CampaignTopListView(ListAPIView):
-    queryset = Campaign.objects.filter(is_top=True).order_by("-creation_date")[:6]
+    queryset = Campaign.objects.filter(is_top=True).order_by("-creation_date")[:8]
     serializer_class = CampaignListSerializer
     pagination_class = None
 
 
 class CampaignRecommendedListView(ListAPIView):
     queryset = Campaign.objects.filter(is_recommended=True).order_by("-creation_date")[
-        :6
+        :8
     ]
     serializer_class = CampaignListSerializer
     pagination_class = None
@@ -79,9 +82,13 @@ class CampaignListView(ListAPIView):
 
 
 class CampaignDetailView(RetrieveAPIView):
-    queryset = Campaign.objects.all()
+    queryset = Campaign.objects.all().annotate(unique_views=Count("views"))
     serializer_class = CampaignDetailSerializer
     lookup_field = "pk"
+
+    def retrieve(self, request, *args, **kwargs):
+        Campaign.objects.filter(id=self.kwargs["pk"]).update(view_count=F("view_count") + 1)
+        return super().retrieve(request, *args, **kwargs)
 
 
 class StatisticsAPIView(APIView):
@@ -89,6 +96,20 @@ class StatisticsAPIView(APIView):
         return Response(
             {"campigns": Campaign.objects.all().count(), "investors": 0, "raised": 0}
         )
+
+
+
+class CampaignCreateView(CreateAPIView):
+    queryset = Campaign.objects.all()
+    serializer_class = CampaignCreateSerializer
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (MultiPartParser, )
+
+
+class CampaignUpdateView(UpdateAPIView):
+    queryset = Campaign.objects.all()
+    serializer_class = CampaignCreateSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class CreatePaymentIntentView(GenericAPIView):
@@ -149,3 +170,5 @@ class InvestmentCreateView(CreateAPIView):
         return Response(
             InvestmentSerializer(investment).data, status=status.HTTP_201_CREATED
         )
+
+

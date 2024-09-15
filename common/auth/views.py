@@ -10,6 +10,13 @@ from rest_framework import status
 from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django.core.mail import send_mail
+
+
+from allauth.account.adapter import get_adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.views import LoginView as RestLoginView
 
 
 from common.models import User
@@ -21,6 +28,7 @@ from .serializers import (
     UserPasswordResetSerializer,
     PasswordResetChangeSerializer,
     PasswordResetVerifyCodeSerializer,
+    SocialLoginSerializer
 )
 from .exceptions import UserLoggedIn
 from .utils import generate_pin
@@ -41,19 +49,21 @@ class RegisterView(ObtainAuthToken, CreateAPIView):
         )
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-
+        
         if user.code_expiration < timezone.now() - timezone.timedelta(
             minutes=settings.REGISTRATION_EXPIRATION_CODE_MINUTES
         ):  # noqa
-            print("inside if")
             user.code = generate_pin()
-            print("THE CODE IS")
-            print(user.code)
-            print(user.code)
-            print(user.code)
             user.code_expiration = timezone.now()
             user.save(update_fields=["code", "code_expiration"])
-        print("after if")
+
+        send_mail(
+            "Crowdfunding registration confirmation code.",
+            f"Thanks for registering on our platform. Your code is {user.code}",
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False
+        )
 
         # send_email_confirmation(
         #     email=user.email,
@@ -121,6 +131,15 @@ class PasswordResetView(GenericAPIView):
             user.code = generate_pin()
             user.code_expiration = timezone.now()
             user.save(update_fields=["code", "code_expiration"])
+    
+        send_mail(
+            "Crowdfunding password reset confirmation code.",
+            f"Your code is {user.code}",
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False
+        )
+
 
             # send_email_restore_password(
             #     email=user.email,
@@ -129,9 +148,6 @@ class PasswordResetView(GenericAPIView):
             #     uid=urlsafe_base64_encode(force_bytes(user.pk)),
             #     token=account_activation_token.make_token(user),
             # )
-        print("THE USER CODE IS")
-        print(user.code)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -179,3 +195,17 @@ class PasswordResetChangeView(UpdateAPIView):
         return Response(
             {"detail": "Parol muvaffaqiyatli o'zgartirildi."}, status=status.HTTP_200_OK
         )
+
+
+class SocialLoginView(RestLoginView):
+    serializer_class = SocialLoginSerializer
+
+    def process_login(self):
+        get_adapter(self.request).login(self.request, self.user)
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = settings.OAUTH_CALLBACK_URL
+    client_class = OAuth2Client
+
